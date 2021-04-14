@@ -1,11 +1,14 @@
-package br.com.zup.edu.keymanager
+package br.com.zup.edu.keymanager.registra
 
 import br.com.zup.edu.*
-import io.grpc.Status
+import br.com.zup.edu.keymanager.compartilhado.exceptions.TipoChaveInvalidoException
+import br.com.zup.edu.keymanager.compartilhado.exceptions.handlers.ErrorHandler
+import br.com.zup.edu.keymanager.toModel
 import io.grpc.stub.StreamObserver
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@ErrorHandler
 @Singleton
 class RegistraNovaChavePixEndPoint(@Inject private val service: NovaChavePixService) :
     KeyManagerGrpcServiceGrpc.KeyManagerGrpcServiceImplBase() {
@@ -13,16 +16,6 @@ class RegistraNovaChavePixEndPoint(@Inject private val service: NovaChavePixServ
         request: RegistraChavePixRequest,
         responseObserver: StreamObserver<RegistraChavePixResponse>
     ) {
-        if (request.tipoConta == TipoConta.UNKNOWN_CONTA) {
-            responseObserver.onError(
-                Status.INVALID_ARGUMENT.withDescription("Tipo de Conta Inválido").asRuntimeException()
-            )
-        }
-        if (request.tipoChave == TipoChave.UNKNOWN_CHAVE) {
-            responseObserver.onError(
-                Status.INVALID_ARGUMENT.withDescription("Tipo de Chave Inválido").asRuntimeException()
-            )
-        }
 
         val novaChavePix = request.toModel()
         val chaveCriada = service.registra(novaChavePix)

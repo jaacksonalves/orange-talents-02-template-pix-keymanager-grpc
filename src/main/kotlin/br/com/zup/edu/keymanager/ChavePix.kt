@@ -1,6 +1,5 @@
 package br.com.zup.edu.keymanager
 
-import br.com.zup.edu.TipoChave
 import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.*

@@ -1,6 +1,9 @@
-package br.com.zup.edu.keymanager
+package br.com.zup.edu.keymanager.client.itau
 
 import br.com.zup.edu.TipoConta
+import br.com.zup.edu.keymanager.ContaAssociada
+import br.com.zup.edu.keymanager.Instituicao
+import br.com.zup.edu.keymanager.Titular
 
 data class ItauClientContaResponse(
     val tipo: String,
@@ -20,7 +23,6 @@ data class ItauClientContaResponse(
 
         )
     }
-
 
 }
 

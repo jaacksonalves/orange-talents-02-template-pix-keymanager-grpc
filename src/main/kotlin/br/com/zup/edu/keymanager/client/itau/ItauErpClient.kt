@@ -1,6 +1,5 @@
-package br.com.zup.edu.keymanager
+package br.com.zup.edu.keymanager.client.itau
 
-import br.com.zup.edu.TipoConta
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
@@ -10,7 +9,8 @@ import io.micronaut.http.client.annotation.Client
 @Client("\${itau.url}")
 interface ItauErpClient {
 
-    @Get("/api/v1/clientes/{clienteId}/contas{?tipoConta}")
+//    @Get("/api/v1/clientes/{clienteId}/contas{tipoConta}")
+    @Get("/api/v1/clientes/{clienteId}/contas?tipo={tipoConta}")
     fun buscaContaPorTipo(
         @PathVariable clienteId: String,
         @QueryValue tipoConta: String
