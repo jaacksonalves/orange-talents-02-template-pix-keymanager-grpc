@@ -57,7 +57,7 @@ internal class RegistraNovaChavePixEndPointTest(
         )
     }
 
-    private fun novaChavePix(): ChavePix {
+    private fun novaChavePixEmail(): ChavePix {
         return ChavePix(
             tipoChave = br.com.zup.edu.keymanager.TipoChave.EMAIL,
             chave = "jackson@email.com",
@@ -67,7 +67,25 @@ internal class RegistraNovaChavePixEndPointTest(
                 agencia = "1010",
                 numeroConta = "202020",
                 titular = Titular(
-                    titularId = CLIENTE_ID.toString(),
+                    titularId = CLIENTE_ID,
+                    nomeTitular = "Jackson Alves",
+                    cpf = "91895790034"
+                )
+            )
+        )
+    }
+
+    private fun novaChavePixCpf(): ChavePix {
+        return ChavePix(
+            tipoChave = br.com.zup.edu.keymanager.TipoChave.CPF,
+            chave = "91895790034",
+            contaAssociada = ContaAssociada(
+                tipoConta = TipoConta.CONTA_CORRENTE,
+                instituicao = Instituicao(nomeInstituicao = "ITAU", ispb = "ITAU_UNIBANCO"),
+                agencia = "1010",
+                numeroConta = "202020",
+                titular = Titular(
+                    titularId = CLIENTE_ID,
                     nomeTitular = "Jackson Alves",
                     cpf = "91895790034"
                 )
@@ -155,7 +173,7 @@ internal class RegistraNovaChavePixEndPointTest(
                 .build()
         ).let { assertNotNull(it.pixId) }
 
-        val chaveRegistrada = repository.findByContaAssociadaTitularTitularId(CLIENTE_ID.toString()).get()
+        val chaveRegistrada = repository.findByContaAssociadaTitularTitularId(CLIENTE_ID).get()
 
         assertNotNull(chaveRegistrada.id)
         assertNotNull(chaveRegistrada.chave)
@@ -167,7 +185,7 @@ internal class RegistraNovaChavePixEndPointTest(
         `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
 
-        repository.save(novaChavePix())
+        repository.save(novaChavePixEmail())
 
         assertThrows<StatusRuntimeException> {
             grpcClient.registra(
@@ -180,7 +198,10 @@ internal class RegistraNovaChavePixEndPointTest(
             )
         }.let {
             assertEquals(Status.ALREADY_EXISTS.code, it.status.code)
-            assertEquals("Chave já cadastrada", it.status.description)
+            assertEquals(
+                "Chave ${br.com.zup.edu.keymanager.TipoChave.EMAIL}: jackson@email.com já cadastrada",
+                it.status.description
+            )
         }
     }
 
@@ -262,6 +283,32 @@ internal class RegistraNovaChavePixEndPointTest(
             assertEquals("Tipo de conta inválido", it.status.description)
         }
     }
+
+    @Test
+    fun `NAO deve registrar nova chave CPF para chave CPF ja cadastrado`() {
+        `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
+            .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
+
+        repository.save(novaChavePixCpf())
+
+        assertThrows<StatusRuntimeException> {
+            grpcClient.registra(
+                RegistraChavePixRequest.newBuilder()
+                    .setClienteId(CLIENTE_ID.toString())
+                    .setTipoChave(TipoChave.CPF)
+                    .setTipoConta(TipoConta.CONTA_CORRENTE)
+                    .build()
+            )
+        }.let {
+            assertEquals(Status.ALREADY_EXISTS.code, it.status.code)
+            assertEquals(
+                "Chave CPF já cadastrada",
+                it.status.description
+            )
+        }
+
+    }
+
 
 }
 

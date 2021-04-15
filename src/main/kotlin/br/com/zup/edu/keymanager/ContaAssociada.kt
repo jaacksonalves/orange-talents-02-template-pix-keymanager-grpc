@@ -1,6 +1,9 @@
 package br.com.zup.edu.keymanager
 
 import br.com.zup.edu.TipoConta
+import io.micronaut.data.annotation.TypeDef
+import io.micronaut.data.model.DataType
+import java.util.*
 import javax.persistence.Embeddable
 import javax.persistence.Embedded
 import javax.persistence.EnumType
@@ -21,7 +24,7 @@ class ContaAssociada(
 
 
 @Embeddable
-class Titular(val titularId: String, val nomeTitular: String, val cpf: String) {
+class Titular(val titularId: UUID, val nomeTitular: String, val cpf: String) {
 
 }
 

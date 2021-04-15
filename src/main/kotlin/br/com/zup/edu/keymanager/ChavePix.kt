@@ -1,5 +1,7 @@
 package br.com.zup.edu.keymanager
 
+import io.micronaut.data.annotation.TypeDef
+import io.micronaut.data.model.DataType
 import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.*

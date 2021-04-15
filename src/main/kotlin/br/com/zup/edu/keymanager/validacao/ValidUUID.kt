@@ -13,5 +13,5 @@ import kotlin.annotation.AnnotationTarget.*
     flags = [Pattern.Flag.CASE_INSENSITIVE]
 )
 @Retention(RUNTIME)
-@Target(FIELD)
+@Target(FIELD, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
 annotation class ValidUUID(val message: String = "Preencher com formato válido UUID")

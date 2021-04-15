@@ -11,6 +11,10 @@ service KeyManagerGrpcService {
   rpc registra(RegistraChavePixRequest) returns (RegistraChavePixResponse){}
 }
 
+service RemoveChavePixService{
+  rpc remove(RemoveChavePixRequest) returns (RemoveChavePixResponse){}
+}
+
 
 //Registra Chave Pix
 message RegistraChavePixRequest{
@@ -36,5 +40,15 @@ enum TipoConta{
   UNKNOWN_CONTA = 0;
   CONTA_CORRENTE = 1;
   CONTA_POUPANCA = 2;
+}
+
+//remove chave pix
+message RemoveChavePixRequest{
+  string pixId = 1;
+  string clienteId = 2;
+}
+
+message RemoveChavePixResponse{
+  string mensagem = 1;
 }
 

@@ -4,6 +4,7 @@ import br.com.zup.edu.TipoConta
 import br.com.zup.edu.keymanager.ContaAssociada
 import br.com.zup.edu.keymanager.Instituicao
 import br.com.zup.edu.keymanager.Titular
+import java.util.*
 
 data class ItauClientContaResponse(
     val tipo: String,
@@ -34,6 +35,6 @@ data class InstituicaoClientResponse(val nome: String, val ispb: String) {
 
 data class TitularClientResponse(val nome: String, val cpf: String) {
     fun toModel(clienteId: String): Titular {
-        return Titular(titularId = clienteId, cpf = cpf, nomeTitular = nome)
+        return Titular(titularId = UUID.fromString(clienteId), cpf = cpf, nomeTitular = nome)
     }
 }
