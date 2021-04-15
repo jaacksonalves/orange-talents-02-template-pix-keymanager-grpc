@@ -97,7 +97,7 @@ internal class RegistraNovaChavePixEndPointTest(
     //TESTES
 
     @Test
-    fun `deve registrar chave pix CPF`() {
+    fun `DEVE registrar chave pix CPF`() {
         `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
 
@@ -117,7 +117,7 @@ internal class RegistraNovaChavePixEndPointTest(
     }
 
     @Test
-    fun `deve registrar chave pix EMAIL`() {
+    fun `DEVE registrar chave pix EMAIL`() {
         `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
 
@@ -139,7 +139,7 @@ internal class RegistraNovaChavePixEndPointTest(
     }
 
     @Test
-    fun `deve registrar chave pix CELULAR`() {
+    fun `DEVE registrar chave pix CELULAR`() {
         `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
 
@@ -161,7 +161,7 @@ internal class RegistraNovaChavePixEndPointTest(
     }
 
     @Test
-    fun `deve registrar chave pix ALEATORIA`() {
+    fun `DEVE registrar chave pix ALEATORIA`() {
         `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
 

@@ -102,7 +102,21 @@ internal class RemoveChavePixEndPointTest(
             assertEquals("Dados inválidos", it.status.description)
         }
 
-        //Com pixId não batendo com o clienteID
+    }
+
+    @Test
+    fun `NAO  deve remover chave pix sem dados no request`() {
+        assertThrows<StatusRuntimeException> {
+            grpcClient.remove(RemoveChavePixRequest.newBuilder().build())
+        }.let {
+            assertEquals(Status.INVALID_ARGUMENT.code, it.status.code)
+            assertEquals("Dados inválidos", it.status.description)
+        }
+    }
+
+    @Test
+    internal fun `NAO deve remover chave pix se id pix nao pretence id titular`() {
+
         assertThrows<StatusRuntimeException> {
             grpcClient.remove(
                 RemoveChavePixRequest.newBuilder()
@@ -114,7 +128,5 @@ internal class RemoveChavePixEndPointTest(
             assertEquals(Status.NOT_FOUND.code, it.status.code)
             assertEquals("Chave não encontrada ou não cadastrada para esse cliente", it.status.description)
         }
-
-
     }
 }
