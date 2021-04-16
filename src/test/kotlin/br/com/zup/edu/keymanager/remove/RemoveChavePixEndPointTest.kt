@@ -55,7 +55,6 @@ internal class RemoveChavePixEndPointTest(
         repository.deleteAll()
     }
 
-
     //TESTES
 
     @Test
