@@ -13,6 +13,7 @@ import br.com.zup.edu.keymanager.compartilhado.exceptions.TipoChaveInvalidoExcep
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientException
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.validation.Validated
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -54,16 +55,12 @@ class NovaChavePixService(
         }
         repository.save(chavePix)
 
-        val responseBcb = bcbClient.cadastraChave(CreatePixKeyRequest(chavePix))
-
-        when (responseBcb.status) {
-            HttpStatus.UNPROCESSABLE_ENTITY -> throw IllegalArgumentException("Chave Pix já cadastrada no BCB")
-            HttpStatus.CREATED -> chavePix.atualizaChave(responseBcb.body())
-            else -> throw IllegalStateException("Erro ao conectar com o servidor BCB, por favor tente mais tarde")
+        val bcbResponse = bcbClient.cadastraChave(CreatePixKeyRequest(chavePix))
+        if (bcbResponse.status != HttpStatus.CREATED) {
+            throw IllegalStateException("Não foi possível cadastrar a chave no BCB, tente novamente")
         }
 
         return chavePix
-
     }
 
 

@@ -11,8 +11,7 @@ interface BcbClient {
 
     @Post(
         "/api/v1/pix/keys",
-        produces = [MediaType.APPLICATION_XML],
-        consumes = [MediaType.APPLICATION_XML]
+        processes = [MediaType.APPLICATION_XML]
     )
     fun cadastraChave(@Body request: CreatePixKeyRequest): HttpResponse<CreatePixKeyResponse>
 
