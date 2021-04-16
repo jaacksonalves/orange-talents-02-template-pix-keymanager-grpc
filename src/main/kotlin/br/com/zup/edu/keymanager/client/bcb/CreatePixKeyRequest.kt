@@ -9,20 +9,37 @@ import java.lang.IllegalArgumentException
 
 
 data class CreatePixKeyRequest(
-    val chavePix: ChavePix
+    val keyType: KeyType,
+    val key: String?,
+    val bankAccount: BankAccount,
+    val owner: Owner
 ) {
-    val keyType: KeyType = toKeyType(chavePix.tipoChave)
-    val key: String = chavePix.chave
-    val bankAccount: BankAccount = BankAccount(chavePix)
-    val owner: Owner = Owner(chavePix)
+    companion object {
+        fun ChavePix.toBcb(): CreatePixKeyRequest {
+            return CreatePixKeyRequest(
+                keyType = toKeyType(tipoChave),
+                key = chave,
+                bankAccount = BankAccount(
+                    participant = contaAssociada.instituicao.ispb,
+                    branch = contaAssociada.agencia,
+                    accountType = toAccountType(contaAssociada.tipoConta),
+                    accountNumber = contaAssociada.numeroConta
+                ),
+                owner = Owner(
+                    type = Type.toType("CPF"),
+                    name = contaAssociada.titular.nomeTitular,
+                    taxIdNumber = contaAssociada.titular.nomeTitular
+                )
+            )
+        }
+    }
 }
 
-data class Owner(val chavePix: ChavePix) {
-    val type: Type = Type.toType("CPF")
-    val name: String = chavePix.contaAssociada.titular.nomeTitular
-    val taxIdNumber: String = chavePix.contaAssociada.titular.cpf
-
-}
+data class Owner(
+    val type: Type,
+    val name: String,
+    val taxIdNumber: String
+)
 
 enum class Type {
     NATURAL_PERSON, LEGAL_PERSON;
@@ -35,13 +52,12 @@ enum class Type {
     }
 }
 
-data class BankAccount(val chavePix: ChavePix) {
-    val participant: String = chavePix.contaAssociada.instituicao.ispb
-    val branch: String = chavePix.contaAssociada.agencia
-    val accountNumber: String = chavePix.contaAssociada.numeroConta
-    val accountType: AccountType = toAccountType(chavePix.contaAssociada.tipoConta)
-
-}
+data class BankAccount(
+    val participant: String,
+    val branch: String,
+    val accountNumber: String,
+    val accountType: AccountType
+)
 
 enum class AccountType {
     CACC, SVGS;

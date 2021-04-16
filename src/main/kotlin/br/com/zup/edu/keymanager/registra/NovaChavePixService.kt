@@ -6,6 +6,7 @@ import br.com.zup.edu.keymanager.ChavePixRepository
 import br.com.zup.edu.keymanager.TipoChave
 import br.com.zup.edu.keymanager.client.bcb.BcbClient
 import br.com.zup.edu.keymanager.client.bcb.CreatePixKeyRequest
+import br.com.zup.edu.keymanager.client.bcb.CreatePixKeyRequest.Companion.toBcb
 import br.com.zup.edu.keymanager.client.bcb.CreatePixKeyResponse
 import br.com.zup.edu.keymanager.client.itau.ItauErpClient
 import br.com.zup.edu.keymanager.compartilhado.exceptions.ChavePixExistenteException
@@ -32,6 +33,7 @@ class NovaChavePixService(
     @Transactional
     fun registra(@Valid novaChaveRequest: NovaChavePixRequest): ChavePix {
 
+        //Conta não pode ser UNKNOWN, (Tipo de chave está sendo validada dentro do Enum TipoChave)
         if (novaChaveRequest.tipoConta == TipoConta.UNKNOWN_CONTA) {
             throw TipoChaveInvalidoException("Tipo de conta inválido")
         }
@@ -41,25 +43,41 @@ class NovaChavePixService(
             throw ChavePixExistenteException("Chave ${novaChaveRequest.tipoChave}: ${novaChaveRequest.chave} já cadastrada")
         }
 
-        //conecta ao client Erp Itau
-        val clientResponse =
-            itauErpClient.buscaContaPorTipo(novaChaveRequest.clienteId, novaChaveRequest.tipoConta.name)
-        val contaAssociada = clientResponse.body()?.toModel(novaChaveRequest.tipoConta, novaChaveRequest.clienteId)
-            ?: throw IllegalStateException("Cliente não encontrado")
+        //Conexão com Client Itau Erp
+        val chavePix: ChavePix
+        try {
+            val clientResponse =
+                itauErpClient.buscaContaPorTipo(novaChaveRequest.clienteId, novaChaveRequest.tipoConta.name)
+            val contaAssociada = clientResponse.body()?.toModel(novaChaveRequest.tipoConta, novaChaveRequest.clienteId)
+                ?: throw IllegalStateException("Cliente não encontrado")
+            chavePix = novaChaveRequest.toModel(contaAssociada)
+        } catch (e: HttpClientException) {
+            throw IllegalStateException("Não foi possível conectar ao sistema Erp Itau, tente mais tarde")
+        }
 
-        //Cria nova chave e salva no banco após verificação
-        val chavePix = novaChaveRequest.toModel(contaAssociada)
-        //Verificação se a chave CPF já está cadastrada, pois a mesma não precisa ser enviada pelo request, passando pela verificação acima
+        //Verifica se já existe a chave CPF, pois a mesma não precisa ser inserida no request por ser cadastrada com o próprio CPF do cliente.
+        // então passa direto no teste de cima
         if (chavePix.tipoChave == TipoChave.CPF && repository.existsByChave(chavePix.contaAssociada.titular.cpf)) {
             throw ChavePixExistenteException("Chave CPF já cadastrada")
         }
-        repository.save(chavePix)
 
-        val bcbResponse = bcbClient.cadastraChave(CreatePixKeyRequest(chavePix))
-        chavePix.atualizaChave(bcbResponse.body())
+        //salvando no banco e conectando ao client do BCB para registro
+        repository.save(chavePix)
+        val bcbRequest = chavePix.toBcb()
+        try {
+            val bcbResponse = bcbClient.cadastraChave(bcbRequest)
+            if (bcbResponse.status == HttpStatus.CREATED) {
+                chavePix.atualizaChave(bcbResponse.body())
+            }
+        } catch (e: HttpClientResponseException) {
+            e.printStackTrace()
+            if (e.status == HttpStatus.UNPROCESSABLE_ENTITY) throw ChavePixExistenteException("Chave pix já cadastrada no BCB")
+
+        } catch (e: HttpClientException) {
+            e.printStackTrace()
+            throw IllegalStateException("Não foi possível conectar ao sistema BCB, tente mais tarde")
+        }
 
         return chavePix
     }
-
-
 }

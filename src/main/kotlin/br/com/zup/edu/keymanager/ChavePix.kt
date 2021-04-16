@@ -19,6 +19,7 @@ class ChavePix(
     @Embedded
     val contaAssociada: ContaAssociada
 ) {
+
     fun atualizaChave(body: CreatePixKeyResponse?) {
         if (tipoChave == TipoChave.ALEATORIA) {
             this.chave = body!!.key
@@ -32,5 +33,6 @@ class ChavePix(
 
     @Column(updatable = false)
     val criadoEm: LocalDateTime = LocalDateTime.now()
+
 
 }
