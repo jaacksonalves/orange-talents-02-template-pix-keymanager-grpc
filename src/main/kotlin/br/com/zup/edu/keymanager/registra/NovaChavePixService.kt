@@ -56,9 +56,7 @@ class NovaChavePixService(
         repository.save(chavePix)
 
         val bcbResponse = bcbClient.cadastraChave(CreatePixKeyRequest(chavePix))
-        if (bcbResponse.status != HttpStatus.CREATED) {
-            throw IllegalStateException("Não foi possível cadastrar a chave no BCB, tente novamente")
-        }
+        chavePix.atualizaChave(bcbResponse.body())
 
         return chavePix
     }
