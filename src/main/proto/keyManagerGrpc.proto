@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/timestamp.proto";
+
 option java_multiple_files = true;
 option java_package = "br.com.zup.edu";
 option java_outer_classname = "KeyManagerGrpc";
@@ -13,6 +15,10 @@ service KeyManagerGrpcService {
 
 service RemoveChavePixService{
   rpc remove(RemoveChavePixRequest) returns (RemoveChavePixResponse){}
+}
+
+service CarregaChavePixService{
+  rpc carrega (CarregaChavePixRequest) returns (CarregaChavePixResponse){}
 }
 
 
@@ -42,7 +48,7 @@ enum TipoConta{
   CONTA_POUPANCA = 2;
 }
 
-//remove chave pix
+//Remove chave pix
 message RemoveChavePixRequest{
   string pixId = 1;
   string clienteId = 2;
@@ -51,4 +57,42 @@ message RemoveChavePixRequest{
 message RemoveChavePixResponse{
   string mensagem = 1;
 }
+
+
+//Carrega chave pix
+message CarregaChavePixRequest{
+
+  message FiltroPorPixEClienteId{
+    string clienteId = 1;
+    string pixId = 2;
+  }
+
+  oneof filtro{
+    FiltroPorPixEClienteId pixEClienteId = 1;
+    string chavePix = 2;
+  }
+}
+
+message CarregaChavePixResponse{
+  string clienteId = 1;
+  string pixId = 2;
+  ChavePix chavePix = 3;
+}
+
+message ContaInfo{
+  TipoConta tipoConta = 1;
+  string institucao = 2;
+  string nomeTitular = 3;
+  string cpfTitular = 4;
+  string agencia = 5;
+  string numeroConta = 6;
+}
+
+message ChavePix{
+  TipoChave tipoChave = 1;
+  string chave = 2;
+  ContaInfo contaInfo = 3;
+  google.protobuf.Timestamp criadaEm = 4;
+}
+
 

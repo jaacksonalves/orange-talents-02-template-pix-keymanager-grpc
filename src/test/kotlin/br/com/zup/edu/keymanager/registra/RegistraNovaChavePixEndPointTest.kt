@@ -5,15 +5,23 @@ import br.com.zup.edu.RegistraChavePixRequest
 import br.com.zup.edu.TipoChave
 import br.com.zup.edu.TipoConta
 import br.com.zup.edu.keymanager.*
+import br.com.zup.edu.keymanager.chavepix.Instituicao
+import br.com.zup.edu.keymanager.chavepix.Titular
+import br.com.zup.edu.keymanager.chavepix.client.bcb.BankAccount
+import br.com.zup.edu.keymanager.chavepix.client.bcb.BcbClient
+import br.com.zup.edu.keymanager.chavepix.client.bcb.Owner
+import br.com.zup.edu.keymanager.chavepix.client.bcb.Type
 import br.com.zup.edu.keymanager.client.bcb.*
 import br.com.zup.edu.keymanager.client.bcb.CreatePixKeyRequest.Companion.toBcb
 import br.com.zup.edu.keymanager.client.itau.InstituicaoClientResponse
 import br.com.zup.edu.keymanager.client.itau.ItauClientContaResponse
-import br.com.zup.edu.keymanager.client.itau.ItauErpClient
+import br.com.zup.edu.keymanager.chavepix.client.itau.ItauErpClient
 import br.com.zup.edu.keymanager.client.itau.TitularClientResponse
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.client.exceptions.HttpClientException
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.*
@@ -145,13 +153,13 @@ internal class RegistraNovaChavePixEndPointTest(
     fun novaChavePixAleatoria(): CreatePixKeyRequest {
         return CreatePixKeyRequest(
             keyType = KeyType.RANDOM,
-            key = UUID.randomUUID().toString(),
+            key = "",
             bankAccount = BankAccount(
                 participant = "60701190",
                 branch = "0001",
                 accountNumber = "202020",
                 accountType = AccountType.CACC
-            ), owner = Owner(Type.toType("CPF"), name = "Jackson Alves", taxIdNumber = "91895790034")
+            ), owner = Owner(type = Type.NATURAL_PERSON, name = "Jackson Alves", taxIdNumber = "91895790034")
         )
     }
 
@@ -269,6 +277,9 @@ internal class RegistraNovaChavePixEndPointTest(
         `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
 
+        `when`(bcbClient.cadastraChave(novaChavePixEmail().toBcb()))
+            .thenReturn(HttpResponse.ok(createPixKeyResponse(keyType = KeyType.EMAIL, key = "jackson@email.com")))
+
         repository.save(novaChavePixEmail())
 
         assertThrows<StatusRuntimeException> {
@@ -293,6 +304,9 @@ internal class RegistraNovaChavePixEndPointTest(
     fun `NAO deve registrar chave pix com parametros invalidos`() {
         `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
+
+        `when`(bcbClient.cadastraChave(novaChavePixEmail().toBcb()))
+            .thenReturn(HttpResponse.ok(createPixKeyResponse(keyType = KeyType.EMAIL, key = "jackson@email.com")))
 
         //enviando tudo em branco
         assertThrows<StatusRuntimeException> {
@@ -373,6 +387,10 @@ internal class RegistraNovaChavePixEndPointTest(
         `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
 
+        `when`(bcbClient.cadastraChave(novaChavePixCpf().toBcb()))
+            .thenReturn(HttpResponse.ok(createPixKeyResponse(keyType = KeyType.CPF, key = "91895790034")))
+
+
         repository.save(novaChavePixCpf())
 
         assertThrows<StatusRuntimeException> {
@@ -393,6 +411,82 @@ internal class RegistraNovaChavePixEndPointTest(
 
     }
 
+    @Test
+    fun `NAO deve registrar chave pix quando Client ERPItau devolver algum erro de conexao ou cliente nao encontrado`() {
+        //Mock client ItauErp com erro retornando not_found
+        `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
+            .thenReturn(HttpResponse.notFound())
 
+        //Mock client BCB
+        `when`(bcbClient.cadastraChave(novaChavePixCpf().toBcb()))
+            .thenReturn(HttpResponse.ok(createPixKeyResponse(keyType = KeyType.CPF, key = "91895790034")))
+
+        //cliente (BloomRPC por exemplo)
+        assertThrows<StatusRuntimeException> {
+            grpcClient.registra(
+                RegistraChavePixRequest.newBuilder()
+                    .setClienteId(CLIENTE_ID.toString())
+                    .setTipoChave(TipoChave.CPF)
+                    .setTipoConta(TipoConta.CONTA_CORRENTE)
+                    .build()
+            )
+        }.let {
+            assertEquals(Status.FAILED_PRECONDITION.code, it.status.code)
+            assertEquals("Sistema Itau não retornou dados, tente novamente", it.status.description)
+        }
+    }
+
+    @Test
+    fun `NAO deve registrar chave pix quando Client BCB devolver erro de cliente ja existente`() {
+        //Mock client ItauErp
+        `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
+            .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
+
+        //Mock client BCB com erro de chave existente
+        `when`(bcbClient.cadastraChave(novaChavePixCpf().toBcb()))
+            .thenThrow(HttpClientResponseException("error", HttpResponse.unprocessableEntity<Any>()))
+
+        //cliente (BloomRPC por exemplo)
+        assertThrows<StatusRuntimeException> {
+            grpcClient.registra(
+                RegistraChavePixRequest.newBuilder()
+                    .setClienteId(CLIENTE_ID.toString())
+                    .setTipoChave(TipoChave.CPF)
+                    .setTipoConta(TipoConta.CONTA_CORRENTE)
+                    .build()
+            )
+        }.let {
+            assertEquals(Status.ALREADY_EXISTS.code, it.status.code)
+            assertEquals("Chave pix já cadastrada no BCB", it.status.description)
+        }
+
+
+    }
+
+
+    @Test
+   fun `NAO deve registrar chave pix quando client BCB estiver fora do ar`() {
+        //Mock client ItauErp
+        `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
+            .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
+
+        //Mock client BCB com erro de servidor
+        `when`(bcbClient.cadastraChave(novaChavePixCpf().toBcb()))
+            .thenThrow(HttpClientException("error"))
+
+        //cliente (BloomRPC por exemplo)
+        assertThrows<StatusRuntimeException> {
+            grpcClient.registra(
+                RegistraChavePixRequest.newBuilder()
+                    .setClienteId(CLIENTE_ID.toString())
+                    .setTipoChave(TipoChave.CPF)
+                    .setTipoConta(TipoConta.CONTA_CORRENTE)
+                    .build()
+            )
+        }.let {
+            assertEquals(Status.FAILED_PRECONDITION.code, it.status.code)
+            assertEquals("Não foi possível conectar ao sistema BCB, tente mais tarde", it.status.description)
+        }
+    }
 }
 
