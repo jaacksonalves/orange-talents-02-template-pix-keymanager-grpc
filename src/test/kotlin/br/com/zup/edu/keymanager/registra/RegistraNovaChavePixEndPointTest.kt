@@ -4,19 +4,13 @@ import br.com.zup.edu.KeyManagerGrpcServiceGrpc
 import br.com.zup.edu.RegistraChavePixRequest
 import br.com.zup.edu.TipoChave
 import br.com.zup.edu.TipoConta
-import br.com.zup.edu.keymanager.*
-import br.com.zup.edu.keymanager.chavepix.Instituicao
-import br.com.zup.edu.keymanager.chavepix.Titular
-import br.com.zup.edu.keymanager.chavepix.client.bcb.BankAccount
-import br.com.zup.edu.keymanager.chavepix.client.bcb.BcbClient
-import br.com.zup.edu.keymanager.chavepix.client.bcb.Owner
-import br.com.zup.edu.keymanager.chavepix.client.bcb.Type
-import br.com.zup.edu.keymanager.client.bcb.*
-import br.com.zup.edu.keymanager.client.bcb.CreatePixKeyRequest.Companion.toBcb
-import br.com.zup.edu.keymanager.client.itau.InstituicaoClientResponse
-import br.com.zup.edu.keymanager.client.itau.ItauClientContaResponse
+import br.com.zup.edu.keymanager.chavepix.*
+import br.com.zup.edu.keymanager.chavepix.client.bcb.*
+import br.com.zup.edu.keymanager.chavepix.client.bcb.CreatePixKeyRequest.Companion.toBcb
+import br.com.zup.edu.keymanager.chavepix.client.itau.InstituicaoClientResponse
+import br.com.zup.edu.keymanager.chavepix.client.itau.ItauClientContaResponse
 import br.com.zup.edu.keymanager.chavepix.client.itau.ItauErpClient
-import br.com.zup.edu.keymanager.client.itau.TitularClientResponse
+import br.com.zup.edu.keymanager.chavepix.client.itau.TitularClientResponse
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.http.HttpResponse
@@ -98,7 +92,7 @@ internal class RegistraNovaChavePixEndPointTest(
 
     private fun novaChavePixEmail(): ChavePix {
         return ChavePix(
-            tipoChave = br.com.zup.edu.keymanager.TipoChave.EMAIL,
+            tipoChave = br.com.zup.edu.keymanager.chavepix.TipoChave.EMAIL,
             chave = "jackson@email.com",
             contaAssociada = ContaAssociada(
                 tipoConta = TipoConta.CONTA_CORRENTE,
@@ -116,7 +110,7 @@ internal class RegistraNovaChavePixEndPointTest(
 
     private fun novaChavePixCpf(): ChavePix {
         return ChavePix(
-            tipoChave = br.com.zup.edu.keymanager.TipoChave.CPF,
+            tipoChave = br.com.zup.edu.keymanager.chavepix.TipoChave.CPF,
             chave = "91895790034",
             contaAssociada = ContaAssociada(
                 tipoConta = TipoConta.CONTA_CORRENTE,
@@ -134,7 +128,7 @@ internal class RegistraNovaChavePixEndPointTest(
 
     fun novaChavePixCelular(): ChavePix {
         return ChavePix(
-            tipoChave = br.com.zup.edu.keymanager.TipoChave.CELULAR,
+            tipoChave = br.com.zup.edu.keymanager.chavepix.TipoChave.CELULAR,
             chave = "+5534999999999",
             contaAssociada = ContaAssociada(
                 tipoConta = TipoConta.CONTA_CORRENTE,
@@ -189,8 +183,9 @@ internal class RegistraNovaChavePixEndPointTest(
 
         assertNotNull(chaveRegistrada.id)
         assertEquals(dadosDaContaResponse().titular.cpf, chaveRegistrada.contaAssociada.titular.cpf)
-        assertTrue(chaveRegistrada.tipoChave == br.com.zup.edu.keymanager.TipoChave.CPF)
+        assertTrue(chaveRegistrada.tipoChave == br.com.zup.edu.keymanager.chavepix.TipoChave.CPF)
     }
+
 
     @Test
     fun `DEVE registrar chave pix EMAIL`() {
@@ -213,9 +208,10 @@ internal class RegistraNovaChavePixEndPointTest(
 
         assertNotNull(chaveRegistrada.id)
         assertEquals("jackson@email.com", chaveRegistrada.chave)
-        assertTrue(chaveRegistrada.tipoChave == br.com.zup.edu.keymanager.TipoChave.EMAIL)
+        assertTrue(chaveRegistrada.tipoChave == br.com.zup.edu.keymanager.chavepix.TipoChave.EMAIL)
 
     }
+
 
     @Test
     fun `DEVE registrar chave pix CELULAR`() {
@@ -238,9 +234,10 @@ internal class RegistraNovaChavePixEndPointTest(
 
         assertNotNull(chaveRegistrada.id)
         assertEquals("+5534999999999", chaveRegistrada.chave)
-        assertTrue(chaveRegistrada.tipoChave == br.com.zup.edu.keymanager.TipoChave.CELULAR)
+        assertTrue(chaveRegistrada.tipoChave == br.com.zup.edu.keymanager.chavepix.TipoChave.CELULAR)
 
     }
+
 
     @Test
     fun `DEVE registrar chave pix ALEATORIA`() {
@@ -269,8 +266,9 @@ internal class RegistraNovaChavePixEndPointTest(
 
         assertNotNull(chaveRegistrada.id)
         assertNotNull(chaveRegistrada.chave)
-        assertTrue(chaveRegistrada.tipoChave == br.com.zup.edu.keymanager.TipoChave.ALEATORIA)
+        assertTrue(chaveRegistrada.tipoChave == br.com.zup.edu.keymanager.chavepix.TipoChave.ALEATORIA)
     }
+
 
     @Test
     fun `NAO deve registrar chave quando ja existe uma igual`() {
@@ -294,11 +292,12 @@ internal class RegistraNovaChavePixEndPointTest(
         }.let {
             assertEquals(Status.ALREADY_EXISTS.code, it.status.code)
             assertEquals(
-                "Chave ${br.com.zup.edu.keymanager.TipoChave.EMAIL}: jackson@email.com já cadastrada",
+                "Chave ${br.com.zup.edu.keymanager.chavepix.TipoChave.EMAIL}: jackson@email.com já cadastrada",
                 it.status.description
             )
         }
     }
+
 
     @Test
     fun `NAO deve registrar chave pix com parametros invalidos`() {
@@ -382,6 +381,7 @@ internal class RegistraNovaChavePixEndPointTest(
         }
     }
 
+
     @Test
     fun `NAO deve registrar nova chave CPF para chave CPF ja cadastrado`() {
         `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
@@ -411,6 +411,7 @@ internal class RegistraNovaChavePixEndPointTest(
 
     }
 
+
     @Test
     fun `NAO deve registrar chave pix quando Client ERPItau devolver algum erro de conexao ou cliente nao encontrado`() {
         //Mock client ItauErp com erro retornando not_found
@@ -435,6 +436,7 @@ internal class RegistraNovaChavePixEndPointTest(
             assertEquals("Sistema Itau não retornou dados, tente novamente", it.status.description)
         }
     }
+
 
     @Test
     fun `NAO deve registrar chave pix quando Client BCB devolver erro de cliente ja existente`() {
@@ -465,7 +467,7 @@ internal class RegistraNovaChavePixEndPointTest(
 
 
     @Test
-   fun `NAO deve registrar chave pix quando client BCB estiver fora do ar`() {
+    fun `NAO deve registrar chave pix quando client BCB estiver fora do ar`() {
         //Mock client ItauErp
         `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipoConta = "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))

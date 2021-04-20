@@ -1,5 +1,7 @@
 package br.com.zup.edu.keymanager
 
+import br.com.zup.edu.CarregaChavePixResponse
+import br.com.zup.edu.CarregaChavePixServiceGrpc
 import br.com.zup.edu.KeyManagerGrpcServiceGrpc
 import br.com.zup.edu.RemoveChavePixServiceGrpc
 import io.grpc.ManagedChannel
@@ -18,6 +20,11 @@ class Clients {
     @Bean
     fun gprcRemove(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel): RemoveChavePixServiceGrpc.RemoveChavePixServiceBlockingStub {
         return RemoveChavePixServiceGrpc.newBlockingStub(channel)
+    }
+
+    @Bean
+    fun gprcCarrega(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel): CarregaChavePixServiceGrpc.CarregaChavePixServiceBlockingStub {
+        return CarregaChavePixServiceGrpc.newBlockingStub(channel)
     }
 }
 

@@ -89,21 +89,21 @@ enum class KeyType {
     companion object {
         fun toKeyType(tipoChave: TipoChave?): KeyType {
             return when (tipoChave) {
-                TipoChave.CPF -> KeyType.CPF
-                TipoChave.CELULAR -> KeyType.PHONE
-                TipoChave.EMAIL -> KeyType.EMAIL
-                TipoChave.ALEATORIA -> KeyType.RANDOM
+                TipoChave.CPF -> CPF
+                TipoChave.CELULAR -> PHONE
+                TipoChave.EMAIL -> EMAIL
+                TipoChave.ALEATORIA -> RANDOM
                 else -> throw IllegalArgumentException("Por enquanto não aceitamos CNPJ")
             }
         }
 
         fun toTipoChave(keyType: KeyType): TipoChave {
             return when (keyType) {
-                KeyType.CPF -> TipoChave.CPF
-                KeyType.CNPJ -> TipoChave.CNPJ
-                KeyType.PHONE -> TipoChave.CELULAR
-                KeyType.EMAIL -> TipoChave.EMAIL
-                KeyType.RANDOM -> TipoChave.ALEATORIA
+                CPF -> TipoChave.CPF
+                CNPJ -> TipoChave.CNPJ
+                PHONE -> TipoChave.CELULAR
+                EMAIL -> TipoChave.EMAIL
+                RANDOM -> TipoChave.ALEATORIA
             }
         }
 

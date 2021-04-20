@@ -7,6 +7,7 @@ import br.com.zup.edu.keymanager.chavepix.ChavePixRepository
 import br.com.zup.edu.keymanager.chavepix.client.bcb.BcbClient
 import br.com.zup.edu.keymanager.chavepix.compartilhado.exceptions.handlers.ErrorHandler
 import io.grpc.stub.StreamObserver
+import io.micronaut.validation.Validated
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.validation.Validator

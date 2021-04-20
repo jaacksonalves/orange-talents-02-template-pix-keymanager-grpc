@@ -3,6 +3,7 @@ package br.com.zup.edu.keymanager.chavepix.carrega
 import br.com.zup.edu.*
 import br.com.zup.edu.CarregaChavePixRequest.FiltroCase
 import br.com.zup.edu.CarregaChavePixRequest.FiltroCase.*
+import br.com.zup.edu.keymanager.chavepix.client.bcb.PixDetailResponse
 import com.google.protobuf.Timestamp
 import java.time.ZoneId
 import javax.validation.ConstraintViolationException
@@ -29,7 +30,6 @@ fun CarregaChavePixRequest.toModel(validator: Validator): Filtro {
 
 
 class CarregaChavePixResponseConverter {
-
     companion object {
         fun toResponse(chaveInfo: ChavePixInfo): CarregaChavePixResponse {
             return CarregaChavePixResponse.newBuilder()
@@ -62,3 +62,4 @@ class CarregaChavePixResponseConverter {
         }
     }
 }
+

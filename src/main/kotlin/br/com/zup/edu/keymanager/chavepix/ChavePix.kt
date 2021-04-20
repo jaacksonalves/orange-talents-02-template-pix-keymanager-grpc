@@ -23,6 +23,11 @@ class ChavePix(
         }
     }
 
+    //tive que criar esse ToString pro teste passar
+    override fun toString(): String {
+        return "ChavePix(id=$id)"
+    }
+
 
     @Id
     @GeneratedValue

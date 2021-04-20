@@ -22,12 +22,12 @@ class ContaAssociada(
 
 
 @Embeddable
-class Titular(val titularId: UUID, val nomeTitular: String, val cpf: String) {
+class Titular(var titularId: UUID?, var nomeTitular: String, var cpf: String) {
 
 }
 
 @Embeddable
-class Instituicao(val nomeInstituicao: String, val ispb: String) {
+class Instituicao(var nomeInstituicao: String, var ispb: String) {
 
 }
 
