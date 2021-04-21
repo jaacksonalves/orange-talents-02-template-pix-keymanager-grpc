@@ -18,6 +18,7 @@ import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -60,6 +61,10 @@ internal class RegistraNovaChavePixEndPointTest(
         repository.deleteAll()
     }
 
+    @AfterEach
+    internal fun tearDown() {
+        repository.deleteAll()
+    }
 
     private fun createPixKeyResponse(keyType: KeyType, key: String): CreatePixKeyResponse {
         return CreatePixKeyResponse(
@@ -78,7 +83,6 @@ internal class RegistraNovaChavePixEndPointTest(
             ), createdAt = LocalDateTime.now()
         )
     }
-
 
     private fun dadosDaContaResponse(): ItauClientContaResponse {
         return ItauClientContaResponse(
@@ -126,7 +130,7 @@ internal class RegistraNovaChavePixEndPointTest(
         )
     }
 
-    fun novaChavePixCelular(): ChavePix {
+    private fun novaChavePixCelular(): ChavePix {
         return ChavePix(
             tipoChave = br.com.zup.edu.keymanager.chavepix.TipoChave.CELULAR,
             chave = "+5534999999999",
@@ -144,7 +148,7 @@ internal class RegistraNovaChavePixEndPointTest(
         )
     }
 
-    fun novaChavePixAleatoria(): CreatePixKeyRequest {
+    private fun novaChavePixAleatoria(): CreatePixKeyRequest {
         return CreatePixKeyRequest(
             keyType = KeyType.RANDOM,
             key = "",
@@ -491,4 +495,5 @@ internal class RegistraNovaChavePixEndPointTest(
         }
     }
 }
+
 
