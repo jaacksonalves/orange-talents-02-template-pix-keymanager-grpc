@@ -21,6 +21,10 @@ interface ChavePixRepository : JpaRepository<ChavePix, UUID> {
 
     fun existsByTipoChave(tipoChave: TipoChave): Boolean
 
-    fun findByIdAndContaAssociadaTitularTitularId(fromString: UUID, fromString1: UUID): Optional<ChavePix>
+    fun findByIdAndContaAssociadaTitularTitularId(pixId: UUID, titularId: UUID): Optional<ChavePix>
+
+    fun existsByContaAssociadaTitularTitularId(titularId: UUID): Boolean
+
+    fun findAllByContaAssociadaTitularTitularId(titularId: UUID): List<ChavePix>
 
 }

@@ -45,10 +45,15 @@ class NovaChavePixService(
         try {
             val clientResponse =
                 itauErpClient.buscaContaPorTipo(novaChaveRequest.clienteId, novaChaveRequest.tipoConta.name)
+            if(clientResponse.status != HttpStatus.OK){
+                throw IllegalArgumentException("Id do cliente não encontrado no ItauErp")
+            }
             val contaAssociada = clientResponse.body()!!.toModel(novaChaveRequest.tipoConta, novaChaveRequest.clienteId)
             chavePix = novaChaveRequest.toModel(contaAssociada)
-        } catch (e: Exception) {
-            throw IllegalStateException("Sistema Itau não retornou dados, tente novamente")
+        } catch (e: HttpClientResponseException) {
+            throw IllegalArgumentException("Id do cliente não encontrado")
+        } catch (e: HttpClientException) {
+            throw IllegalStateException("Não foi possível conectar ao sistema ItauErp, tente mais tarde")
         }
 
         //Verifica se já existe a chave CPF, pois a mesma não precisa ser inserida no request por ser cadastrada com o próprio CPF do cliente.

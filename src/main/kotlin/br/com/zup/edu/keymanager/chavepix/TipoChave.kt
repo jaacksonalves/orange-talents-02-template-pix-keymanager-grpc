@@ -38,7 +38,7 @@ enum class TipoChave {
 
     ALEATORIA {
         override fun valida(chave: String?) =
-            chave.isNullOrBlank() // chave aleatória não deve ser preenchida pois é criada automáticamente
+            chave.isNullOrBlank() // chave aleatória não deve ser preenchida pois é criada automaticamente
     },
     CNPJ {
         override fun valida(chave: String?): Boolean {

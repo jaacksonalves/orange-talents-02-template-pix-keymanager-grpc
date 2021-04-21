@@ -432,8 +432,8 @@ internal class RegistraNovaChavePixEndPointTest(
                     .build()
             )
         }.let {
-            assertEquals(Status.FAILED_PRECONDITION.code, it.status.code)
-            assertEquals("Sistema Itau não retornou dados, tente novamente", it.status.description)
+            assertEquals(Status.INVALID_ARGUMENT.code, it.status.code)
+            assertEquals("Id do cliente não encontrado no ItauErp", it.status.description)
         }
     }
 

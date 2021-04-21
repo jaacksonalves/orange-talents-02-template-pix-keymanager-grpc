@@ -21,6 +21,10 @@ service CarregaChavePixService{
   rpc carrega (CarregaChavePixRequest) returns (CarregaChavePixResponse){}
 }
 
+service ListaChavePixService{
+  rpc lista (ListaChavePixRequest) returns (ListaChavePixResponse){}
+}
+
 
 //Registra Chave Pix
 message RegistraChavePixRequest{
@@ -95,4 +99,23 @@ message ChavePix{
   google.protobuf.Timestamp criadaEm = 4;
 }
 
+
+//Lista chaves de um cliente
+
+message ListaChavePixRequest{
+  string clienteId = 1;
+}
+
+message ListaChavePixResponse{
+  string clienteId = 1;
+  repeated ChavePixLista chaves = 2;
+
+  message ChavePixLista{
+    string pixId = 1;
+    TipoChave tipoChave = 2;
+    string chave = 3;
+    TipoConta tipoConta = 4;
+    google.protobuf.Timestamp criadaEm = 5;
+  }
+}
 

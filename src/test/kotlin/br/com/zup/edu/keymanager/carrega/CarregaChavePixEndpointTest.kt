@@ -47,7 +47,6 @@ internal class CarregaChavePixEndpointTest(
     companion object {
         val CLIENTE_ID = UUID.randomUUID()
         val CHAVE_ALEATORIA = UUID.randomUUID()
-
     }
 
     private fun criaChavePix(tipoChave: TipoChave, chave: String): ChavePix {

@@ -1,9 +1,6 @@
 package br.com.zup.edu.keymanager
 
-import br.com.zup.edu.CarregaChavePixResponse
-import br.com.zup.edu.CarregaChavePixServiceGrpc
-import br.com.zup.edu.KeyManagerGrpcServiceGrpc
-import br.com.zup.edu.RemoveChavePixServiceGrpc
+import br.com.zup.edu.*
 import io.grpc.ManagedChannel
 import io.micronaut.context.annotation.Bean
 import io.micronaut.context.annotation.Factory
@@ -25,6 +22,11 @@ class Clients {
     @Bean
     fun gprcCarrega(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel): CarregaChavePixServiceGrpc.CarregaChavePixServiceBlockingStub {
         return CarregaChavePixServiceGrpc.newBlockingStub(channel)
+    }
+
+    @Bean
+    fun gprcLista(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel): ListaChavePixServiceGrpc.ListaChavePixServiceBlockingStub {
+        return ListaChavePixServiceGrpc.newBlockingStub(channel)
     }
 }
 
